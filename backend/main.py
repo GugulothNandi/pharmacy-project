@@ -5,6 +5,8 @@ from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
 
+
+# CORS (Allow Vercel frontend)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -14,35 +16,49 @@ app.add_middleware(
 )
 
 
-# Database Connection Function
+# DATABASE
 def get_connection():
-    return sqlite3.connect("pharmacy.db")
+    conn = sqlite3.connect("pharmacy.db")
+    return conn
 
 
-# Create Table
-conn = get_connection()
-cursor = conn.cursor()
+# CREATE TABLE
+def create_table():
 
-cursor.execute("""
-CREATE TABLE IF NOT EXISTS medicines(
-id INTEGER PRIMARY KEY AUTOINCREMENT,
-name TEXT,
-stock INTEGER,
-price INTEGER,
-status TEXT
-)
-""")
+    conn = get_connection()
+    cursor = conn.cursor()
 
-conn.commit()
-conn.close()
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS medicines(
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT,
+        stock INTEGER,
+        price INTEGER,
+        status TEXT
+    )
+    """)
+
+    conn.commit()
+    conn.close()
 
 
-# Model
+create_table()
+
+
+# MODEL
 class Medicine(BaseModel):
+
     name: str
     stock: int
     price: int
     status: str
+
+
+# ROOT API (IMPORTANT FOR RENDER)
+@app.get("/")
+def home():
+
+    return {"message": "Pharmacy API Running"}
 
 
 # GET Medicines
@@ -57,11 +73,11 @@ def get_medicines():
 
     conn.close()
 
-    result = []
+    medicines = []
 
     for row in data:
 
-        result.append({
+        medicines.append({
             "id": row[0],
             "name": row[1],
             "stock": row[2],
@@ -69,7 +85,7 @@ def get_medicines():
             "status": row[4]
         })
 
-    return result
+    return medicines
 
 
 # ADD Medicine
@@ -111,39 +127,6 @@ def dashboard():
     }
 
 
-
-@app.put("/update/{id}")
-def update_medicine(id: int, name: str, stock: int, price: int):
-
-    conn = sqlite3.connect("pharmacy.db")
-    cursor = conn.cursor()
-
-    cursor.execute(
-        "UPDATE medicines SET name=?, stock=?, price=? WHERE id=?",
-        (name, stock, price, id)
-    )
-
-    conn.commit()
-    conn.close()
-
-    return {"message": "Medicine Updated"}
-
-
-# DELETE ALL DATA
-@app.delete("/delete_all")
-def delete_all():
-
-    conn = get_connection()
-    cursor = conn.cursor()
-
-    cursor.execute("DELETE FROM medicines")
-
-    conn.commit()
-    conn.close()
-
-    return {"message": "All data deleted"}
-
-
 # UPDATE Medicine
 @app.put("/medicines/{medicine_id}")
 def update_medicine(medicine_id: int, medicine: Medicine):
@@ -152,9 +135,9 @@ def update_medicine(medicine_id: int, medicine: Medicine):
     cursor = conn.cursor()
 
     cursor.execute("""
-    UPDATE medicines
-    SET name=?, stock=?, price=?, status=?
-    WHERE id=?
+        UPDATE medicines
+        SET name=?, stock=?, price=?, status=?
+        WHERE id=?
     """,
     (medicine.name, medicine.stock, medicine.price, medicine.status, medicine_id)
     )
@@ -181,3 +164,18 @@ def update_status(medicine_id: int, status: str):
     conn.close()
 
     return {"message": "Status Updated"}
+
+
+# DELETE ALL
+@app.delete("/delete_all")
+def delete_all():
+
+    conn = get_connection()
+    cursor = conn.cursor()
+
+    cursor.execute("DELETE FROM medicines")
+
+    conn.commit()
+    conn.close()
+
+    return {"message": "All data deleted"}
