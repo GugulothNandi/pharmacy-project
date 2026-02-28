@@ -4,7 +4,7 @@ function Dashboard() {
   const [data, setData] = useState({});
 
   function loadDashboard() {
-    fetch("http://127.0.0.1:8000/dashboard")
+    fetch("https://pharmacy-project-25pj.onrender.com/dashboard")
       .then((res) => res.json())
       .then((data) => setData(data));
   }

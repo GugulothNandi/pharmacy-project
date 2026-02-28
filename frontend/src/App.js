@@ -10,7 +10,7 @@ function App() {
   const [price, setPrice] = useState("");
 
   function loadMedicines() {
-    fetch("http://127.0.0.1:8000/medicines")
+    fetch("https://pharmacy-project-25pj.onrender.com/medicines")
       .then((res) => res.json())
       .then((data) => setMedicines(data));
   }
@@ -20,7 +20,7 @@ function App() {
   }, []);
 
   function addMedicine() {
-    fetch("http://127.0.0.1:8000/medicines", {
+    fetch("https://pharmacy-project-25pj.onrender.com/medicines", {
       method: "POST",
 
       headers: {
@@ -48,7 +48,7 @@ function App() {
     const newPrice = prompt("Enter price");
 
     fetch(
-      `http://127.0.0.1:8000/update/${id}?name=${newName}&stock=${newStock}&price=${newPrice}`,
+      `https://pharmacy-project-25pj.onrender.com/update/${id}?name=${newName}&stock=${newStock}&price=${newPrice}`,
       {
         method: "PUT",
       },
@@ -112,36 +112,21 @@ function App() {
             value={name}
             placeholder="Medicine Name"
             onChange={(e) => setName(e.target.value)}
-            style={{
-              padding: "8px",
-              marginRight: "10px",
-              borderRadius: "6px",
-              border: "1px solid gray",
-            }}
+            style={inputStyle}
           />
 
           <input
             value={stock}
             placeholder="Stock"
             onChange={(e) => setStock(e.target.value)}
-            style={{
-              padding: "8px",
-              marginRight: "10px",
-              borderRadius: "6px",
-              border: "1px solid gray",
-            }}
+            style={inputStyle}
           />
 
           <input
             value={price}
             placeholder="Price"
             onChange={(e) => setPrice(e.target.value)}
-            style={{
-              padding: "8px",
-              marginRight: "10px",
-              borderRadius: "6px",
-              border: "1px solid gray",
-            }}
+            style={inputStyle}
           />
 
           <button
@@ -171,13 +156,9 @@ function App() {
           <thead>
             <tr style={{ background: "#eef2ff" }}>
               <th style={thStyle}>Name</th>
-
               <th style={thStyle}>Stock</th>
-
               <th style={thStyle}>Price</th>
-
               <th style={thStyle}>Status</th>
-
               <th style={thStyle}>Update</th>
             </tr>
           </thead>
@@ -247,6 +228,13 @@ const thStyle = {
 const tdStyle = {
   padding: "12px",
   borderBottom: "1px solid #eee",
+};
+
+const inputStyle = {
+  padding: "8px",
+  marginRight: "10px",
+  borderRadius: "6px",
+  border: "1px solid gray",
 };
 
 export default App;
